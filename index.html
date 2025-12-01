@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pooja Graphic - Sales Dashboard</title>
+    <link href="main.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo">Pooja Graphic</div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active" data-view="dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="customers">Customers</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="create-order">Create Order</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="orders">Orders</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="quotations">Quotations</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="reports">Reports</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="reminders">Reminders</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="products">Products</a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard View -->
+            <div id="dashboard-view" class="view active">
+                <div class="page-header">
+                    <h1 class="page-title">Dashboard</h1>
+                    <p class="page-subtitle">Overview of your sales and customers</p>
+                </div>
+
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-label">Total Sales</div>
+                        <div class="kpi-value" id="kpi-total-sales">₹0</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Total Receivables</div>
+                        <div class="kpi-value" id="kpi-total-receivables">₹0</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Overdue Receivables</div>
+                        <div class="kpi-value" id="kpi-overdue-receivables">₹0</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-label">Total Customers</div>
+                        <div class="kpi-value" id="kpi-total-customers">0</div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2 class="section-title">Recent Orders</h2>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-orders-list">
+                                <tr>
+                                    <td colspan="5" class="empty-state">No orders yet</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customers View -->
+            <div id="customers-view" class="view">
+                <div class="page-header">
+                    <h1 class="page-title">Customers</h1>
+                    <p class="page-subtitle">Manage your customer database</p>
+                </div>
+
+                <div class="section">
+                    <button class="btn btn--primary" onclick="openAddCustomerModal()">+ Add Customer</button>
+                </div>
+
+                <div class="section">
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>Email</th>
+                                    <th>WhatsApp Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customers-list">
+                                <tr>
+                                    <td colspan="5" class="empty-state">No customers yet</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Create Order View -->
+            <div id="create-order-view" class="view">
+                <div class="page-header">
+                    <h1 class="page-title">Create New Order</h1>
+                    <p class="page-subtitle">Add items and generate WhatsApp order summary</p>
+                </div>
+
+                <form id="order-form">
+                    <div class="section">
+                        <h3 class="section-title">Customer Information</h3>
+                        <div class="form-group">
+                            <label class="form-label">Select Customer</label>
+                            <select class="form-control" id="order-customer" required>
+                                <option value="">-- Select Customer --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Order Items</h3>
+                        <div id="order-items-container" class="order-items"></div>
+                        <button type="button" class="btn btn--secondary" onclick="addOrderItem()">+ Add Item</button>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Payment Information</h3>
+                        <div class="form-group">
+                            <label class="form-label">Payment Status *</label>
+                            <div style="display: flex; gap: 16px; margin-bottom: 16px;">
+                                <label style="display: flex; align-items: center; cursor: pointer;">
+                                    <input type="radio" name="payment-status" value="fully_paid" checked onchange="toggleCreditFields()"> 
+                                    <span style="margin-left: 8px;">Fully Paid</span>
+                                </label>
+                                <label style="display: flex; align-items: center; cursor: pointer;">
+                                    <input type="radio" name="payment-status" value="credit" onchange="toggleCreditFields()">
+                                    <span style="margin-left: 8px;">Credit</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div id="credit-fields" style="display: none;">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">Credit Type</label>
+                                    <select class="form-control" id="credit-type" onchange="updateCreditLabel()">
+                                        <option value="half">Half Credit</option>
+                                        <option value="full">Full Credit</option>
+                                        <option value="custom">Custom Label</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" id="custom-credit-label-group" style="display: none;">
+                                    <label class="form-label">Custom Credit Label</label>
+                                    <input type="text" class="form-control" id="custom-credit-label" placeholder="Enter custom label">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Credit Duration (Days)</label>
+                                    <input type="number" class="form-control" id="credit-duration" value="30" min="1" onchange="calculateDueDate()">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Due Date</label>
+                                    <input type="text" class="form-control" id="due-date" readonly>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label style="display: flex; align-items: center; cursor: pointer;">
+                                    <input type="checkbox" id="enable-reminders" onchange="toggleReminderFields()">
+                                    <span style="margin-left: 8px; font-weight: 500;">Enable Reminders</span>
+                                </label>
+                            </div>
+                            
+                            <div id="reminder-fields" style="display: none;">
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label style="display: flex; align-items: center; cursor: pointer;">
+                                            <input type="checkbox" id="reminder-owner">
+                                            <span style="margin-left: 8px;">Send to Owner</span>
+                                        </label>
+                                        <input type="number" class="form-control" id="owner-reminder-days" value="5" min="1" placeholder="Days before due" style="margin-top: 8px;">
+                                    </div>
+                                    <div class="form-group">
+                                        <label style="display: flex; align-items: center; cursor: pointer;">
+                                            <input type="checkbox" id="reminder-customer">
+                                            <span style="margin-left: 8px;">Send to Customer</span>
+                                        </label>
+                                        <input type="number" class="form-control" id="customer-reminder-days" value="7" min="1" placeholder="Days before due" style="margin-top: 8px;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Order Totals</h3>
+                        <div class="totals-section">
+                            <div class="totals-row">
+                                <span>Subtotal:</span>
+                                <span id="order-subtotal">₹0.00</span>
+                            </div>
+                            <div class="totals-row">
+                                <div>
+                                    <label class="form-label">Discount</label>
+                                    <div style="display: flex; gap: 8px;">
+                                        <input type="number" class="form-control" id="order-discount" value="0" min="0" style="width: 120px;" onchange="calculateOrderTotal()">
+                                        <select class="form-control" id="discount-type" style="width: 100px;" onchange="calculateOrderTotal()">
+                                            <option value="fixed">₹</option>
+                                            <option value="percentage">%</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <span id="order-discount-amount">₹0.00</span>
+                            </div>
+                            <div class="totals-row">
+                                <div>
+                                    <label class="form-label">Tax (%)</label>
+                                    <input type="number" class="form-control" id="order-tax" value="0" min="0" max="100" step="0.01" style="width: 120px;" onchange="calculateOrderTotal()">
+                                </div>
+                                <span id="order-tax-amount">₹0.00</span>
+                            </div>
+                            <div class="totals-row">
+                                <strong>Grand Total:</strong>
+                                <strong id="order-grand-total">₹0.00</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">Additional Details</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Order Date</label>
+                                <input type="date" class="form-control" id="order-date" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Order Time</label>
+                                <input type="time" class="form-control" id="order-time" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Expected Delivery Date</label>
+                                <input type="date" class="form-control" id="order-delivery-date">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Expected Delivery Time</label>
+                                <input type="time" class="form-control" id="order-delivery-time">
+                            </div>
+                            <div class="form-group" style="grid-column: 1 / -1;">
+                                <label class="form-label">Order Notes</label>
+                                <textarea class="form-control" id="order-notes" rows="2" placeholder="Optional notes"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h3 class="section-title">WhatsApp Message Preview</h3>
+                        <div class="whatsapp-preview">
+                            <div class="whatsapp-message" id="whatsapp-preview-text">Add items to see message preview</div>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button type="submit" class="btn btn--primary">Save Order</button>
+                        <button type="button" class="btn btn--secondary" onclick="clearOrderForm()">Clear</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Orders View -->
+            <div id="orders-view" class="view">
+                <div class="page-header">
+                    <h1 class="page-title">All Orders</h1>
+                    <p class="page-subtitle">View and manage all orders</p>
+                </div>
+
+                <div class="filters">
+                    <div class="filter-group">
+                        <label class="form-label">Filter by Status</label>
+                        <select class="form-control" id="filter-status" onchange="filterOrders()">
+                            <option value="all">All Orders</option>
+                            <option value="pending">Pending</option>
+                            <option value="completed">Completed</option>
+                            <option value="shipped">Shipped</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="form-label">Filter by Customer</label>
+                        <select class="form-control" id="filter-customer" onchange="filterOrders()">
+                            <option value="all">All Customers</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="form-label">Search Order ID</label>
+                        <input type="text" class="form-control" id="search-order" placeholder="Search..." oninput="filterOrders()">
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orders-list">
+                                <tr>
+                                    <td colspan="6" class="empty-state">No orders yet</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quotations View -->
+            <div id="quotations-view" class="view">
+                <div class="page-header">
+                    <h1 class="page-title">Quotations</h1>
+                    <p class="page-subtitle">Create and manage quotations</p>
+                </div>
+
+                <div class="section">
+                    <button class="btn btn--primary" onclick="openCreateQuotationModal()">+ Create Quotation</button>
+                </div>
+
+                <div class="section">
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Quotation ID</th>
+                                    <th>Customer</th>
+                                    <th>Created Date</th>
+                                    <th>Valid Until</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="quotations-list">
+                                <tr>
+                                    <td colspan="7" class="empty-state">No quotations yet</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports View -->
+            <div id="reports-view" class="view">
+                <div class="page-header">
+                    <h1 class="page-title">Reports &amp; Analytics</h1>
+                    <p class="page-subtitle">Sales and receivables insights</p>
+                </div>
+
+                <div class="filters">
+                    <button class="btn btn--secondary" onclick="filterReportByPeriod('daily')">Daily</button>
+                    <button class="btn btn--secondary" onclick="filterReportByPeriod('weekly')">Weekly</button>
+                    <button class="btn btn--secondary" onclick="filterReportByPeriod('monthly')">Monthly</button>
+                    <button class="btn btn--secondary" onclick="filterReportByPeriod('yearly')">Yearly</button>
+                    <div class="filter-group">
+                        <label class="form-label">Custom Range</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="date" class="form-control" id="report-start-date">
+                            <input type="date" class="form-control" id="report-end-date">
+                            <button class="btn btn--primary" onclick="filterReportByCustomRange()">Apply</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2 class="section-title">Sales Report (<span id="report-period-label">All Time</span>)</h2>
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div class="kpi-label">Total Sales</div>
+                            <div class="kpi-value" id="report-total-sales">₹0</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label">Orders Count</div>
+                            <div class="kpi-value" id="report-orders-count">0</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label">Average Order Value</div>
+                            <div class="kpi-value" id="report-avg-order">₹0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2 class="section-title">Receivables Report</h2>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Customer</th>
+                                    <th>Order ID</th>
+                                    <th>Amount</th>
+                                    <th>Due Date</th>
+                                    <th>Days Overdue</th>
+                                    <th>Aging</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="receivables-list">
+                                <tr>
+                                    <td colspan="7" class="empty-state">No receivables</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reminders View -->
+            <div id="reminders-view" class="view">
+                <div class="page-header">
+                    <h1 class="page-title">Credit Reminders</h1>
+                    <p class="page-subtitle">Manage payment reminders</p>
+                </div>
+
+                <div class="section">
+                    <h2 class="section-title">Scheduled Reminders</h2>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Customer</th>
+                                    <th>Order ID</th>
+                                    <th>Amount</th>
+                                    <th>Due Date</th>
+                                    <th>Reminder Date</th>
+                                    <th>Recipient</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reminders-list">
+                                <tr>
+                                    <td colspan="8" class="empty-state">No scheduled reminders</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products View -->
+            <div id="products-view" class="view">
+                <div class="page-header">
+                    <h1 class="page-title">Product Catalog</h1>
+                    <p class="page-subtitle">Manage your product inventory</p>
+                </div>
+
+                <div class="section">
+                    <button class="btn btn--primary" onclick="openAddProductModal()">+ Add Product</button>
+                </div>
+
+                <div class="section">
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Product Name</th>
+                                    <th>Unit Type</th>
+                                    <th>Price Per Unit</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="products-list"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Customer Modal -->
+    <div id="add-customer-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Customer</h3>
+                <button class="modal-close" onclick="closeAddCustomerModal()">&times;</button>
+            </div>
+            <form id="add-customer-form">
+                <div class="form-group">
+                    <label class="form-label">Customer Name *</label>
+                    <input type="text" class="form-control" id="customer-name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Mobile Number (WhatsApp) *</label>
+                    <input type="tel" class="form-control" id="customer-phone" pattern="[0-9]{10}" required placeholder="10 digit number">
+                    <span class="error-message" id="phone-error"></span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" id="customer-email">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Notes</label>
+                    <input type="text" class="form-control" id="customer-notes">
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn--primary">Add Customer</button>
+                    <button type="button" class="btn btn--secondary" onclick="closeAddCustomerModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div id="add-product-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Product</h3>
+                <button class="modal-close" onclick="closeAddProductModal()">&times;</button>
+            </div>
+            <form id="add-product-form">
+                <div class="form-group">
+                    <label class="form-label">Product Name *</label>
+                    <input type="text" class="form-control" id="product-name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Unit Type *</label>
+                    <select class="form-control" id="product-unit" required>
+                        <option value="pieces">Pieces</option>
+                        <option value="sq.ft">Square Feet</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Price Per Unit (₹) *</label>
+                    <input type="number" class="form-control" id="product-price" min="0" step="0.01" required>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn--primary">Add Product</button>
+                    <button type="button" class="btn btn--secondary" onclick="closeAddProductModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div id="order-details-modal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3>Order Details</h3>
+                <button class="modal-close" onclick="closeOrderDetailsModal()">&times;</button>
+            </div>
+            <div id="order-details-content"></div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
